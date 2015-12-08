@@ -1,0 +1,14 @@
+PODS:
+  - Beakn (0.1.0)
+
+DEPENDENCIES:
+  - Beakn (from `../`)
+
+EXTERNAL SOURCES:
+  Beakn:
+    :path: ../
+
+SPEC CHECKSUMS:
+  Beakn: b6551bb2712f80589723f1e5f946115942de5664
+
+COCOAPODS: 0.39.0
