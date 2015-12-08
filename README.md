@@ -22,7 +22,7 @@ pod "Beakn"
 
 ## Author
 
-Prasad Pamidi, Prasad.X.Pamidi.-ND@disney.com
+Prasad Pamidi, pamidi.dev@gmail.com
 
 ## License
 
