@@ -9,23 +9,36 @@
 import UIKit
 import Beakn
 
-class ViewController: UIViewController, BeaknDelegate {
-    
+let kBeaconID = "1BD36CEF-2FBA-4E8C-9B86-4C3C34507A8E"
+
+class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard #available(iOS 9.0, *) else {
+            print("Beakn doesn't support version prior to iOS 9.0")
+            return
+        }
         
-        if #available(iOS 9.0, *) {
-            BeaknManager.sharedManager.delegate = self
-        } else {
-            // Fallback on earlier versions
+        BeaknManager.sharedManager.delegate = self
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        guard #available(iOS 9.0, *) else {
+            print("Beakn doesn't support version prior to iOS 9.0")
+            return
+        }
+        
+        guard !BeaknManager.sharedManager.monitoring() else {
+            print("already monitoring for iBeacons")
+            return
         }
         
         do {
-            if #available(iOS 9.0, *) {
-                try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: "", identifier: "", major: .None, minor: .None)])
-            } else {
-                // Fallback on earlier versions
-            }
+            try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
+            print("Started monitoring for iBeacons")
+            
         } catch BeaknErrorDomain.AuthorizationError(let msg) {
             print(msg)
         } catch BeaknErrorDomain.InitializationError(let msg) {
@@ -40,21 +53,25 @@ class ViewController: UIViewController, BeaknDelegate {
             print("Unknown error occurred")
         }
     }
-    
+}
+
+//MARK: - BeaknDelegate methods
+
+extension ViewController: BeaknDelegate {
     func initializationFailed(error: NSError) {
-        print("Unable to initialize BeaknManager due to error \(error)")
+         print("Unable to initialize BeaknManager due to error \(error)")
     }
     
     func entered(beakn:  Beakn) {
-        print("Device entered region with identifier \(beakn.identifier)")
+        print("Device entered iBeacon region with identifier  \(beakn.identifier)")
     }
     
     func exited(beakn: Beakn) {
-        print("Device exited region with identifier \(beakn.identifier)")
+        print("Device exited iBeacon region with identifier \(beakn.identifier)")
     }
     
     func monitoringFailedForRegion(beakn: Beakn, error: NSError) {
-        
+        print("Monitoring failed due to error \(error)")
     }
     
     func rangingComplete(beakns: [Beakn]) {
@@ -69,6 +86,4 @@ class ViewController: UIViewController, BeaknDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
 }
-

@@ -19,7 +19,7 @@ public enum BeaknErrorDomain: ErrorType {
 }
 
 // MARK: -  BeaknProtocol
-@objc public protocol BeaknDelegate:class {
+@objc public protocol BeaknDelegate: class {
     func initializationFailed(error: NSError)
     func entered(beakn:  Beakn)
     func exited(beakn: Beakn)
@@ -94,92 +94,14 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
 @available(iOS 9.0, *)
 @objc public class BeaknManager: NSObject, CLLocationManagerDelegate {
     public static let sharedManager = BeaknManager()
+    public weak var delegate:BeaknDelegate?
+    
     private var manager: CLLocationManager
-    private var lastDetection: NSDate? {
-        get {
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            return userDefaults.valueForKey("lastDetection") as? NSDate
-        }
-        
-        set(newValue) {
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setValue(newValue, forKey: "lastDetection")
-            userDefaults.synchronize()
-        }
-    }
-    
-    private var isMonitoring: Bool {
-        get {
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            return userDefaults.boolForKey("isMonitoring")
-        }
-        
-        set(newValue) {
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setBool(newValue, forKey: "isMonitoring")
-            userDefaults.synchronize()
-        }
-    }
-    
-    private var repository: [String: Beakn] {
-        get {
-            if let data = NSUserDefaults.standardUserDefaults().objectForKey("repository") as? NSData {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
-            }
-            
-            return [:]
-        }
-        
-        set(newValue) {
-            guard newValue.count > 0 else {
-                return
-            }
-            
-            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setObject(data, forKey: "repository")
-            userDefaults.synchronize()
-        }
-    }
-    
-    private var monitoredRegions: [String: Beakn] {
-        get {
-            if let data = NSUserDefaults.standardUserDefaults().objectForKey("monitoredRegions") as? NSData {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
-            }
-            
-            return [:]
-        }
-        
-        set(newValue) {
-            guard newValue.count > 0 else {
-                return
-            }
-            
-            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setObject(data, forKey: "monitoredRegions")
-            userDefaults.synchronize()
-        }
-    }
-    
-    public weak var delegate:BeaknDelegate? {
-        get {
-            if let data = NSUserDefaults.standardUserDefaults().objectForKey("delegate") as? NSData {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as? BeaknDelegate
-            }
-            
-            print("No delegate found in the user defaults")
-            return nil
-        }
-        
-        set(newValue) {
-            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue!)
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setObject(data, forKey: "delegate")
-            userDefaults.synchronize()
-        }
-    }
+    private var lastDetection: NSDate?
+    private var isMonitoring: Bool = false
+    private var repository: [String: Beakn] = [:]
+    private var monitoredRegions: [String: Beakn] = [:]
+    private var reachableRegions: [String: Beakn] = [:]
     
     private override init() {
         manager = CLLocationManager()
@@ -190,9 +112,6 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         
         super.init()
         manager.delegate = self
-        isMonitoring = false
-        repository =  [:]
-        monitoredRegions = [:]
     }
     
     public func startMonitoringForBeakns(beakns: [Beakn]) throws {
@@ -281,6 +200,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         
         manager.stopMonitoringForRegion(region)
         monitoredRegions[beakn.identifier] = nil
+        reachableRegions[beakn.identifier] = nil
     }
     
     public func stopMonitoring() {
@@ -322,7 +242,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         
         isMonitoring = true
         monitoredRegions[aregion.identifier] = beakn
-        manager.requestStateForRegion(region)
+        manager.requestStateForRegion(aregion)
     }
     
     public func locationManager(manager: CLLocationManager, monitoringDidFailForRegion region: CLRegion?, withError error: NSError) {
@@ -340,7 +260,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         }
         
         guard let beakn = monitoredRegions[aregion.identifier] else {
-            print("No monitoredRegions repository found")
+            print("Region doesn't belong in the current monitored regions")
             return
         }
         
@@ -349,6 +269,12 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
             return
         }
         
+        guard reachableRegions[aregion.identifier] == nil else {
+            print("Entered event received for \(region.identifier) earlier")
+            return
+        }
+        
+        reachableRegions[region.identifier] = beakn
         handler.entered(beakn)
     }
     
@@ -358,6 +284,12 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
             return
         }
         
+        guard let _ = reachableRegions[aregion.identifier] else {
+            print("Device exited region \(region.identifier) earlier")
+            return
+        }
+        
+        reachableRegions[region.identifier] = .None
         handler.exited(beakn)
     }
     
@@ -369,6 +301,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         self.isMonitoring = aDecoder.decodeBoolForKey("isMonitoring")
         self.repository = aDecoder.decodeObjectForKey("repository") as! [String: Beakn]
         self.monitoredRegions = aDecoder.decodeObjectForKey("monitoredRegions") as! [String: Beakn]
+        self.reachableRegions = aDecoder.decodeObjectForKey("reachableRegions") as! [String: Beakn]
         self.delegate = aDecoder.decodeObjectForKey("delegate") as? BeaknDelegate
     }
     
@@ -379,6 +312,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         aCoder.encodeObject(self.monitoredRegions, forKey: "monitoredRegions")
         aCoder.encodeObject(self.delegate, forKey: "delegate")
         aCoder.encodeObject(self.manager, forKey: "manager")
+        aCoder.encodeObject(self.reachableRegions, forKey: "reachableRegions")
     }
     
     deinit {
