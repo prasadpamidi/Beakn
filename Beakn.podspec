@@ -22,7 +22,7 @@ This is a cocoapod library written in Swift intended at handling the iBeacon mon
 
   s.homepage         = "https://github.com/prasadpamidi/Beakn"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
-  s.license          = 'Apache License, Version 2.0'
+  s.license          = 'MIT'
   s.author           = { "Prasad Pamidi" => "pamidi.dev@gmail.com" }
   s.source           = { :git => "https://github.com/prasadpamidi/Beakn.git", :tag => s.version.to_s }
   s.social_media_url = 'http://twitter.com/mepamidi'
