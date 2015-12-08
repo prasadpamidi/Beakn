@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
 #   * Write the description between the DESC delimiters below.
 #   * Finally, don't worry about the indent, CocoaPods strips it!  
   s.description      = <<-DESC
-This is a cocoapod library written in Swift intended at handling the iBeacon monitoring for apps with minimum code.
+This is a cocoapod library written in Swift intended at handling the iBeacon monitoring for apps with minimum code. It is simple and intended to address one task to do perfectly that is iBeacon monitoring
                        DESC
 
   s.homepage         = "https://github.com/prasadpamidi/Beakn"
