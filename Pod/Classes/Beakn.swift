@@ -330,6 +330,9 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         stopMonitoringForBeakns(Array(monitoredRegions.values))
     }
     
+    /**
+     Adding NSCoder methods to be able to persist data associated with this library
+     */
     public required init?(coder aDecoder: NSCoder) {
         self.manager = aDecoder.decodeObjectForKey("manager") as! CLLocationManager
         super.init()
