@@ -16,6 +16,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+*/xcuserdata
 
 # CocoaPods
 #
@@ -31,7 +32,3 @@ DerivedData
 # Carthage/Checkouts
 
 Carthage/Build
-
-*.xcuserstate
-
-*.xcuserstate
