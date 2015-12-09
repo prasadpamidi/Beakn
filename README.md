@@ -54,25 +54,26 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
     4. Request for iBeacon Region monitoring
     
-        do {
-            try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
-        } catch BeaknErrorDomain.AuthorizationError(let msg) {
-            print(msg)
-        } catch BeaknErrorDomain.InitializationError(let msg) {
-            print(msg)
-        } catch BeaknErrorDomain.InvalidBeaknInfo {
-            print("Invalid Beakn info provided")
-        } catch BeaknErrorDomain.InvalidUUIDString {
-            print("Invalid UUID string provided")
-        } catch BeaknErrorDomain.RegionMonitoringError(let msg) {
-            print(msg)
-        } catch {
-            print("Unknown error occurred")
-        }
+            do {
+                try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
+            } catch BeaknErrorDomain.AuthorizationError(let msg) {
+                print(msg)
+            } catch BeaknErrorDomain.InitializationError(let msg) {
+                print(msg)
+            } catch BeaknErrorDomain.InvalidBeaknInfo {
+                print("Invalid Beakn info provided")
+            } catch BeaknErrorDomain.InvalidUUIDString {
+                print("Invalid UUID string provided")
+            } catch BeaknErrorDomain.RegionMonitoringError(let msg) {
+                print(msg)
+            } catch {
+                print("Unknown error occurred")
+            }
 
 ## Requirements
-You will have to enable location service capability for your app
-You will have to add NSLocationAlwaysDescription key with appropriate description in the App's info.plist file
+    1. You will have to enable location services capability for your app
+
+    2. You will have to add NSLocationAlwaysUsageDescription key with appropriate description in the App's info.plist file
 
 ## Installation
 
