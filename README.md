@@ -11,17 +11,15 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 * To be able to use the library, please follow below mentioned steps
 
-    1. Import Beakn and adopt the library protocol
+    1. Import Beakn in to your app class
 
             import Beakn
 
-            class ViewController: UIViewController, BeaknProtocol
-
-    2. Assign your class as a delegate to the library 
+    2. Assign your class as a delegate to the library
 
             BeaknManager.sharedManager.delegate = self
    
-    3. Implement delegate methods
+    3. Implement BeaknDelegate delegate methods
         
             extension ViewController: BeaknDelegate {
                 func initializationFailed(error: NSError) {
@@ -85,6 +83,9 @@ it, simply add the following line to your Podfile:
 pod "Beakn"
 ```
 
+## Future improvements
+
+I'll try to add support for ranging and more in the coming future releases. Please feel free to make change/improvement and submit PR's :)
 
 
 ## Author
