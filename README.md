@@ -13,21 +13,16 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
     1. Import Beakn and adopt the library protocol
 
-        {% highlight swift %}
             import Beakn
 
             class ViewController: UIViewController, BeaknProtocol
-        {% endhighlight %}
 
     2. Assign your class as a delegate to the library 
 
-        {% highlight swift %}
             BeaknManager.sharedManager.delegate = self
-        {% endhighlight %}
    
     3. Implement delegate methods
         
-    {% highlight swift %}
             extension ViewController: BeaknDelegate {
                 func initializationFailed(error: NSError) {
                     print("Unable to initialize BeaknManager due to error \(error)")
@@ -58,11 +53,9 @@ To run the example project, clone the repo, and run `pod install` from the Examp
                 func rangingFailed(beakn: Beakn, error: NSError) {
                 }
             }
-        {% endhighlight %}
 
     4. Request for iBeacon Region monitoring
     
-{% highlight swift %}
         do {
             try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
         } catch BeaknErrorDomain.AuthorizationError(let msg) {
@@ -78,7 +71,6 @@ To run the example project, clone the repo, and run `pod install` from the Examp
         } catch {
             print("Unknown error occurred")
         }
-    {% endhighlight %}
 
 ## Requirements
 You will have to enable location service capability for your app
