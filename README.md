@@ -26,7 +26,8 @@ To run the example project, clone the repo, and run `pod install` from the Examp
         {% endhighlight %}
    
     3. Implement delegate methods
-        {% highlight swift %}
+        
+    {% highlight swift %}
             extension ViewController: BeaknDelegate {
                 func initializationFailed(error: NSError) {
                     print("Unable to initialize BeaknManager due to error \(error)")
@@ -58,8 +59,10 @@ To run the example project, clone the repo, and run `pod install` from the Examp
                 }
             }
         {% endhighlight %}
+
     4. Request for iBeacon Region monitoring
-    {% highlight swift %}
+    
+{% highlight swift %}
         do {
             try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
         } catch BeaknErrorDomain.AuthorizationError(let msg) {
