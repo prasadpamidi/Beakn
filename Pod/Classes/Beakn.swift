@@ -10,6 +10,16 @@ import Foundation
 import CoreLocation
 
 // MARK: -  BeaknErrorDomain
+/**
+Beakn Error Domain and associated error messages
+
+- InitializationError: Error happens due to an issue with initializing the BeaknManager class or CLLocationManager instance.
+- AuthorizationError: Error happens due to an issue with authorization.
+- RegionMonitoringError: Error happens due to an when library couldn't monitor the region.
+- InvalidUUIDString: Error happens when the library is given an invalid region uuid string to monitor.
+- InvalidBeaknInfo: Error happens when the library is provided with invalid region information
+*/
+
 public enum BeaknErrorDomain: ErrorType {
     case InitializationError(msg: String)
     case AuthorizationError(msg: String)
@@ -18,14 +28,42 @@ public enum BeaknErrorDomain: ErrorType {
     case InvalidBeaknInfo
 }
 
+
 // MARK: -  BeaknProtocol
+
+/**
+    A protocol that the host app should implement to be able to interact with the BeaknManager library
+*/
 @objc public protocol BeaknDelegate: class {
+    /**
+     It will be called when there is an issue with the library/CLLocationManager initialization
+     - Parameters:
+     - error: The NSError object with description related to the error
+    */
     func initializationFailed(error: NSError)
+    
+    /**
+     It will be called when the device enters the monitored iBeacon region
+     - Parameters:
+     - beakn: The Beakn object that the device just entered
+     */
     func entered(beakn:  Beakn)
+    
+    /**
+     It will be called when the device exited the monitored iBeacon region
+     - Parameters:
+     - beakn: The Beakn object that the device just exited
+     */
     func exited(beakn: Beakn)
+    
+    /**
+     It will be called when there is an library couldn't monitor the requested region
+     - Parameters:
+     - error: The NSError object with description related to the error
+     */
     func monitoringFailedForRegion(beakn: Beakn, error: NSError)
     
-    //TODO: haven't implemented the ranging functionality yet
+    // TODO: haven't implemented the ranging functionality yet
     func rangingComplete(beakns: [Beakn])
     func rangingFailed(beakn: Beakn, error: NSError)
 }
@@ -40,11 +78,29 @@ public protocol BeaknProtocol {
 
 // MARK: - Beakn structure
 @objc public class Beakn: NSObject, NSCoding, BeaknProtocol  {
+    //The unique uuid string for the region to be monitored
     public var uuid: String
+    
+    // The major value associated with the region, can be .None
     public var major: Int?
+    
+    // The minor value associated with the region, can be .None
     public var minor: Int?
+    
+    // The unique identifier string for the region to be used for comparing
     public var identifier: String
     
+    /**
+     Initializes a new Beakn with the provided uuid, identifier, major and minor information.
+     
+     - Parameters:
+     - uuid: The unique uuid string for the region to be monitored
+     - identifier: The unique identifier string for the region to be used for comparing
+     - major: The major value associated with the region, can be .None
+     - minor: The minor value associated with the region, can be .None
+     
+     - Returns: A Beakn object with the needed region information, this can be submitted to BeaknManager for monitoring.
+     */
     public init (uuid: String, identifier: String, major: Int?, minor: Int?) {
         self.uuid = uuid
         
@@ -91,17 +147,37 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
 
 // MARK: - BeaknManager
 @available(iOS 9.0, *)
-@objc public class BeaknManager: NSObject, CLLocationManagerDelegate {
+@objc public class BeaknManager: NSObject {
+    // The shared instance of the BeaknManager class. Highly recommended to use this while interacting with the library
     public static let sharedManager = BeaknManager()
+    
+    // The delegate object that will be responsible to implement the methods of BeaknDelegate that the library will call for any events
     public weak var delegate:BeaknDelegate?
     
+    // The CLLocationManager instance that is used for performing iBeacon region monitoring
     private var manager: CLLocationManager
-    private var lastDetection: NSDate?
+    
+    // This instance variable holds the status of whether the library is monitoring any regions or not
     private var isMonitoring: Bool = false
+    
+    // It holds all the beakn objects that were requested by the host app to monitor
     private var repository: [String: Beakn] = [:]
+    
+    /**
+     It holds the actual beakn objects that are actually monitored by this library
+     
+     - The difference between repository and monitoredRegions is that, not all the regions requested by the host app can be monitored. Some requests might fail due to various error.
+     */
     private var monitoredRegions: [String: Beakn] = [:]
+    
+    // It holds all the beakn regions that app is currently located
     private var reachableRegions: [String: Beakn] = [:]
     
+    /**
+     Initializes a new BeaknManager with the provided uuid, identifier, major and minor information.
+     
+     - Returns: A BeaknManager object with the associated CLLocationManager initialized.
+     */
     private override init() {
         manager = CLLocationManager()
         
@@ -113,12 +189,30 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         manager.delegate = self
     }
     
+    /**
+     Starts monitoring the list of iBeacons regions.
+     
+     - Parameter beakns:   The array to Beakn objects.
+     
+     - Throws: `BeaknErrorDomain` ErrorType if the monitoring for the region doesn't happen.
+     
+     - Returns: .None.
+     */
     public func startMonitoringForBeakns(beakns: [Beakn]) throws {
         try beakns.forEach { (beakn) -> () in
             try startMonitoringForBeakn(beakn)
         }
     }
     
+    /**
+     Starts monitoring the given of iBeacon regions.
+     
+     - Parameter beakn:   The Beakn object with region information.
+     
+     - Throws: `BeaknErrorDomain` ErrorType if the monitoring for the region doesn't happen.
+     
+     - Returns: .None.
+     */
     public func startMonitoringForBeakn(beakn: Beakn) throws {
         guard CLLocationManager.locationServicesEnabled() else {
             print("Location services not enabled")
@@ -170,6 +264,13 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         manager.startMonitoringForRegion(region)
     }
     
+    /**
+     Verifies if the given Beakn object is already monitored.
+     
+     - Parameter beakn:   The Beakn object with region information.
+     
+     - Returns: A Bool value representing whether the region is monitored or not.
+     */
     public func isMonitoringBeakn(beakn: Beakn) -> Bool {
         guard isMonitoring else {
             return false
@@ -178,10 +279,21 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         return (monitoredRegions[beakn.identifier] != nil)
     }
     
+    /**
+     Verifies if the library is monitoring any regions.
+     
+     - Returns: A Bool value representing whether the region is monitored or not.
+     */
     public func monitoring() -> Bool {
         return isMonitoring
     }
     
+    
+    /**
+     Stops monitoring for the given set of beakn regions.
+     
+     - Parameter beakns:   The array Beakn objects with appropriate region information.
+    */
     public func stopMonitoringForBeakns(beakns: [Beakn]) {
         guard isMonitoring else {
             return
@@ -192,6 +304,11 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         }
     }
     
+    /**
+     Stops monitoring for a given beakn region.
+     
+     - Parameter beakns:   The array Beakn objects with appropriate region information.
+     */
     public func stopMonitoringForBeakn(beakn: Beakn) {
         guard isMonitoring, let _ = monitoredRegions[beakn.identifier], region = manager.monitoredRegions.filter({$0.identifier == beakn.identifier}).first else {
             return
@@ -202,6 +319,9 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         reachableRegions[beakn.identifier] = nil
     }
     
+    /**
+     Stops monitoring all the beakn regions currently monitored by this library.
+     */
     public func stopMonitoring() {
         guard isMonitoring && monitoredRegions.count > 0 else {
             return
@@ -210,7 +330,34 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         stopMonitoringForBeakns(Array(monitoredRegions.values))
     }
     
-    // MARK: - CoreLocation, CLBeakn delegate methods
+    public required init?(coder aDecoder: NSCoder) {
+        self.manager = aDecoder.decodeObjectForKey("manager") as! CLLocationManager
+        super.init()
+        
+        self.isMonitoring = aDecoder.decodeBoolForKey("isMonitoring")
+        self.repository = aDecoder.decodeObjectForKey("repository") as! [String: Beakn]
+        self.monitoredRegions = aDecoder.decodeObjectForKey("monitoredRegions") as! [String: Beakn]
+        self.reachableRegions = aDecoder.decodeObjectForKey("reachableRegions") as! [String: Beakn]
+        self.delegate = aDecoder.decodeObjectForKey("delegate") as? BeaknDelegate
+    }
+    
+    func encodeWithCoder(aCoder: NSCoder) {
+        aCoder.encodeBool(self.isMonitoring, forKey: "isMonitoring")
+        aCoder.encodeObject(self.repository, forKey: "repository")
+        aCoder.encodeObject(self.monitoredRegions, forKey: "monitoredRegions")
+        aCoder.encodeObject(self.delegate, forKey: "delegate")
+        aCoder.encodeObject(self.manager, forKey: "manager")
+        aCoder.encodeObject(self.reachableRegions, forKey: "reachableRegions")
+    }
+    
+    deinit {
+        //not doing anything
+    }
+}
+
+// MARK: - CoreLocation, CLBeakn delegate methods
+@available(iOS 9.0, *)
+extension BeaknManager: CLLocationManagerDelegate {
     public func locationManager(manager: CLLocationManager,
         didChangeAuthorizationStatus status: CLAuthorizationStatus) {
             if status == .AuthorizedAlways {
@@ -290,32 +437,6 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         
         reachableRegions[region.identifier] = .None
         handler.exited(beakn)
-    }
-    
-    public required init?(coder aDecoder: NSCoder) {
-        self.manager = aDecoder.decodeObjectForKey("manager") as! CLLocationManager
-        super.init()
-        
-        self.lastDetection = aDecoder.decodeObjectForKey("lastDetection") as? NSDate
-        self.isMonitoring = aDecoder.decodeBoolForKey("isMonitoring")
-        self.repository = aDecoder.decodeObjectForKey("repository") as! [String: Beakn]
-        self.monitoredRegions = aDecoder.decodeObjectForKey("monitoredRegions") as! [String: Beakn]
-        self.reachableRegions = aDecoder.decodeObjectForKey("reachableRegions") as! [String: Beakn]
-        self.delegate = aDecoder.decodeObjectForKey("delegate") as? BeaknDelegate
-    }
-    
-    func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(self.lastDetection, forKey: "lastDetection")
-        aCoder.encodeBool(self.isMonitoring, forKey: "isMonitoring")
-        aCoder.encodeObject(self.repository, forKey: "repository")
-        aCoder.encodeObject(self.monitoredRegions, forKey: "monitoredRegions")
-        aCoder.encodeObject(self.delegate, forKey: "delegate")
-        aCoder.encodeObject(self.manager, forKey: "manager")
-        aCoder.encodeObject(self.reachableRegions, forKey: "reachableRegions")
-    }
-    
-    deinit {
-        //not doing anything
     }
 }
 
