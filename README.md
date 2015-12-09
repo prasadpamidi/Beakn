@@ -86,7 +86,7 @@ pod "Beakn"
 
 ## Future improvements
 
-I'll try to add support for ranging and more in the coming future releases. Please feel free to make change/improvement and submit PR's :)
+I'll add support for iBeacon Ranging in the upcoming release. Meanwhile, Please feel free to make any changes/improvements and submit PRs :)
 
 
 ## Author
