@@ -158,20 +158,92 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
     private var manager: CLLocationManager
     
     // This instance variable holds the status of whether the library is monitoring any regions or not
-    private var isMonitoring: Bool = false
+// FIXME: since a pod is dynamic framework, it will be deinitialized when not needed due to this it cannot hold on to properties
+// I am currently saving the value using NSUserDefaults, if you think there is a better way to do this, feel free submit a PR with the change.
+    private var isMonitoring: Bool {
+        get {
+            let userDefaults = NSUserDefaults.standardUserDefaults()
+            return userDefaults.boolForKey("isMonitoring")
+        }
+        
+        set(newValue) {
+            let userDefaults = NSUserDefaults.standardUserDefaults()
+            userDefaults.setBool(newValue, forKey: "isMonitoring")
+            userDefaults.synchronize()
+        }
+    }
+
     
     // It holds all the beakn objects that were requested by the host app to monitor
-    private var repository: [String: Beakn] = [:]
+    private var repository: [String: Beakn] {
+        get {
+            if let data = NSUserDefaults.standardUserDefaults().objectForKey("repository") as? NSData {
+                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
+            }
+            
+            return [:]
+        }
+        
+        set(newValue) {
+            guard newValue.count > 0 else {
+                return
+            }
+            
+            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
+            let userDefaults = NSUserDefaults.standardUserDefaults()
+            userDefaults.setObject(data, forKey: "repository")
+            userDefaults.synchronize()
+        }
+    }
+    
     
     /**
      It holds the actual beakn objects that are actually monitored by this library
      
      - The difference between repository and monitoredRegions is that, not all the regions requested by the host app can be monitored. Some requests might fail due to various error.
      */
-    private var monitoredRegions: [String: Beakn] = [:]
+    private var monitoredRegions: [String: Beakn] {
+        get {
+            if let data = NSUserDefaults.standardUserDefaults().objectForKey("monitoredRegions") as? NSData {
+                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
+            }
+            
+            return [:]
+        }
+        
+        set(newValue) {
+            guard newValue.count > 0 else {
+                return
+            }
+            
+            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
+            let userDefaults = NSUserDefaults.standardUserDefaults()
+            userDefaults.setObject(data, forKey: "monitoredRegions")
+            userDefaults.synchronize()
+        }
+    }
     
     // It holds all the beakn regions that app is currently located
-    private var reachableRegions: [String: Beakn] = [:]
+    private var reachableRegions: [String: Beakn] {
+        get {
+            if let data = NSUserDefaults.standardUserDefaults().objectForKey("reachableRegions") as? NSData {
+                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
+            }
+            
+            return [:]
+        }
+        
+        set(newValue) {
+            guard newValue.count > 0 else {
+                return
+            }
+            
+            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
+            let userDefaults = NSUserDefaults.standardUserDefaults()
+            userDefaults.setObject(data, forKey: "reachableRegions")
+            userDefaults.synchronize()
+        }
+    }
     
     /**
      Initializes a new BeaknManager with the provided uuid, identifier, major and minor information.

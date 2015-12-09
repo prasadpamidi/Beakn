@@ -8,23 +8,17 @@
 
 Pod::Spec.new do |s|
   s.name             = "Beakn"
-  s.version          = "1.0.0"
-  s.summary          = "A pure Swift syntactic sugar library for beacon monitoring."
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!  
+  s.version          = "1.1.0"
+  s.summary          = "A pure Swift syntactic sugar library for iBeacon region monitoring."
   s.description      = <<-DESC
-This is a cocoapod library written in Swift intended at handling the iBeacon monitoring for apps with minimum code. It is simple and intended to address one task to do perfectly that is iBeacon monitoring
+                        This is a cocoapod library written in Swift intended at handling the iBeacon monitoring for apps with minimum code. It is simple and intended to address one task to do perfectly that is iBeacon region monitoring
                        DESC
 
   s.homepage         = "https://github.com/prasadpamidi/Beakn"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "Prasad Pamidi" => "pamidi.dev@gmail.com" }
-  s.source           = { :git => "https://github.com/prasadpamidi/Beakn.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/prasadpamidi/Beakn.git", :tag => "1.1.0" }
   s.social_media_url = 'http://twitter.com/mepamidi'
 
   s.platform     = :ios, '9.0'
