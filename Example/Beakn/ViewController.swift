@@ -38,7 +38,6 @@ class ViewController: UIViewController {
         do {
             try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
             print("Started monitoring for iBeacons")
-            
         } catch BeaknErrorDomain.AuthorizationError(let msg) {
             print(msg)
         } catch BeaknErrorDomain.InitializationError(let msg) {
