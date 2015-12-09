@@ -38,7 +38,6 @@ public protocol BeaknProtocol {
     var identifier: String {get set}
 }
 
-
 // MARK: - Beakn structure
 @objc public class Beakn: NSObject, NSCoding, BeaknProtocol  {
     public var uuid: String
