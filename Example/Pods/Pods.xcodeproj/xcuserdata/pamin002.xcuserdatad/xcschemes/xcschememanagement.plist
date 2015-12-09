@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>Beakn-Beakn.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Beakn.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Beakn_Example.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Beakn_Tests.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>1BB2BCF828C3CB027355211790A4587B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5834C7F574B40AD0B8765BCB969841DD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A9F18C0B86E3D0B78053743AC229A9A2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>DBF37C5A3755A60D9A4F87A848112375</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
