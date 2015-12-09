@@ -1,6 +1,6 @@
 # Beakn
 
-[![CI Status](http://img.shields.io/travis/prasadpamidi/Beakn?style=flat)](https://travis-ci.org/prasadpamidi/Beakn)
+[![CI Status](https://travis-ci.org/prasadpamidi/Beakn.svg?branch=master)](https://travis-ci.org/prasadpamidi/Beakn)
 [![Version](https://img.shields.io/cocoapods/v/Beakn.svg?style=flat)](http://cocoapods.org/pods/Beakn)
 [![License](https://img.shields.io/cocoapods/l/Beakn.svg?style=flat)](http://cocoapods.org/pods/Beakn)
 [![Platform](https://img.shields.io/cocoapods/p/Beakn.svg?style=flat)](http://cocoapods.org/pods/Beakn)
