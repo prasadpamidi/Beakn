@@ -71,9 +71,11 @@ To run the example project, clone the repo, and run `pod install` from the Examp
             }
 
 ## Requirements
-    1. You will have to enable location services capability for your app
-
-    2. You will have to add NSLocationAlwaysUsageDescription key with appropriate description in the App's info.plist file
+    1. iOS 9.0+
+    2. Xcode 7.1+
+    
+    * You will have to enable location services capability for your app
+    * You will have to add NSLocationAlwaysUsageDescription key with appropriate description in the App's info.plist file
 
 ## Installation
 
@@ -81,7 +83,7 @@ Beakn is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod "Beakn"
+pod 'Beakn' , '~> 1.1.0'
 ```
 
 ## Future improvements
