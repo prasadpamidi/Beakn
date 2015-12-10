@@ -71,11 +71,11 @@ To run the example project, clone the repo, and run `pod install` from the Examp
             }
 
 ## Requirements
-    1. iOS 9.0+
-    2. Xcode 7.1+
+iOS 9.0+
+Xcode 7.1+
     
-    * You will have to enable location services capability for your app
-    * You will have to add NSLocationAlwaysUsageDescription key with appropriate description in the App's info.plist file
+- You will have to enable location services capability for your app
+- You will have to add NSLocationAlwaysUsageDescription key with appropriate description in the App's info.plist file
 
 ## Installation
 
