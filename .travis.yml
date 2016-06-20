@@ -6,8 +6,7 @@ language: objective-c
 xcode_workspace: Example/Beakn.xcworkspace
 xcode_scheme: Beakn-Example
 xcode_sdk: iphonesimulator
-osx_image: xcode8.0
-env: TRAVIS_SWIFT_VERSION=3.0
+osx_image: xcode8
 
 # cache: cocoapods
 # podfile: Example/Podfile
