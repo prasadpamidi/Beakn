@@ -18,7 +18,7 @@ class ViewController: UIViewController {
         BeaknManager.sharedManager.delegate = self
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         guard !BeaknManager.sharedManager.monitoring() else {
             print("already monitoring for iBeacons")
@@ -26,7 +26,7 @@ class ViewController: UIViewController {
         }
         
         do {
-            try BeaknManager.sharedManager.startMonitoringForBeakns([Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .None, minor: .None)])
+            try BeaknManager.sharedManager.startMonitoringForBeakns(beakns: [Beakn(uuid: kBeaconID, identifier: "Test iBeacon", major: .none, minor: .none)])
         } catch BeaknErrorDomain.AuthorizationError(let msg) {
             print(msg)
         } catch BeaknErrorDomain.InitializationError(let msg) {
@@ -52,14 +52,14 @@ extension ViewController: BeaknDelegate {
     func entered(beakn:  Beakn) {
         let notification = UILocalNotification()
         notification.alertBody = "Entered iBeacon region"
-        UIApplication.sharedApplication().presentLocalNotificationNow(notification)
+        UIApplication.shared().presentLocalNotificationNow(notification)
         print("Device entered iBeacon region with identifier  \(beakn.identifier)")
     }
     
     func exited(beakn: Beakn) {
         let notification = UILocalNotification()
         notification.alertBody = "Exited iBeacon region"
-        UIApplication.sharedApplication().presentLocalNotificationNow(notification)
+        UIApplication.shared().presentLocalNotificationNow(notification)
 
         print("Device exited iBeacon region with identifier \(beakn.identifier)")
     }

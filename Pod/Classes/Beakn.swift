@@ -20,7 +20,7 @@ Beakn Error Domain and associated error messages
 - InvalidBeaknInfo: Error happens when the library is provided with invalid region information
 */
 
-public enum BeaknErrorDomain: ErrorType {
+public enum BeaknErrorDomain: ErrorProtocol {
     case InitializationError(msg: String)
     case AuthorizationError(msg: String)
     case RegionMonitoringError(msg: String)
@@ -116,17 +116,17 @@ public protocol BeaknProtocol {
     }
     
     required public init?(coder aDecoder: NSCoder) {
-        self.uuid = aDecoder.decodeObjectForKey("uuid") as! String
-        self.major = aDecoder.decodeObjectForKey("major") as? Int
-        self.minor = aDecoder.decodeObjectForKey("minor") as? Int
-        self.identifier = aDecoder.decodeObjectForKey("identifier") as! String
+        self.uuid = aDecoder.decodeObject(forKey: "uuid") as! String
+        self.major = aDecoder.decodeObject(forKey:"major") as? Int
+        self.minor = aDecoder.decodeObject(forKey:"minor") as? Int
+        self.identifier = aDecoder.decodeObject(forKey:"identifier") as! String
     }
     
-    public func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(self.uuid, forKey: "uuid")
-        aCoder.encodeObject(self.major, forKey: "major")
-        aCoder.encodeObject(self.minor, forKey: "minor")
-        aCoder.encodeObject(self.identifier, forKey: "identifier")
+    public func encode(with aCoder: NSCoder) {
+        aCoder.encode(self.uuid, forKey: "uuid")
+        aCoder.encode(self.major, forKey: "major")
+        aCoder.encode(self.minor, forKey: "minor")
+        aCoder.encode(self.identifier, forKey: "identifier")
     }
     
     override public var hashValue: Int { return "\(self.identifier)".hashValue }
@@ -162,13 +162,13 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
 // I am currently saving the value using NSUserDefaults, if you think there is a better way to do this, feel free submit a PR with the change.
     private var isMonitoring: Bool {
         get {
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            return userDefaults.boolForKey("isMonitoring")
+            let userDefaults = UserDefaults.standard()
+            return userDefaults.bool(forKey: "isMonitoring")
         }
         
         set(newValue) {
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setBool(newValue, forKey: "isMonitoring")
+            let userDefaults = UserDefaults.standard()
+            userDefaults.set(newValue, forKey: "isMonitoring")
             userDefaults.synchronize()
         }
     }
@@ -177,8 +177,8 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
     // It holds all the beakn objects that were requested by the host app to monitor
     private var repository: [String: Beakn] {
         get {
-            if let data = NSUserDefaults.standardUserDefaults().objectForKey("repository") as? NSData {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
+            if let data = UserDefaults.standard().object(forKey: "repository") as? NSData {
+                return NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! [String: Beakn]
             }
             
             return [:]
@@ -189,9 +189,9 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
                 return
             }
             
-            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setObject(data, forKey: "repository")
+            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            let userDefaults = UserDefaults.standard()
+            userDefaults.set(data, forKey: "repository")
             userDefaults.synchronize()
         }
     }
@@ -204,8 +204,8 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
      */
     private var monitoredRegions: [String: Beakn] {
         get {
-            if let data = NSUserDefaults.standardUserDefaults().objectForKey("monitoredRegions") as? NSData {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
+            if let data = UserDefaults.standard().object(forKey: "monitoredRegions") as? Data {
+                return NSKeyedUnarchiver.unarchiveObject(with: data) as! [String: Beakn]
             }
             
             return [:]
@@ -216,9 +216,9 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
                 return
             }
             
-            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setObject(data, forKey: "monitoredRegions")
+            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            let userDefaults = UserDefaults.standard()
+            userDefaults.set(data, forKey: "monitoredRegions")
             userDefaults.synchronize()
         }
     }
@@ -226,8 +226,8 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
     // It holds all the beakn regions that app is currently located
     private var reachableRegions: [String: Beakn] {
         get {
-            if let data = NSUserDefaults.standardUserDefaults().objectForKey("reachableRegions") as? NSData {
-                return NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [String: Beakn]
+            if let data = UserDefaults.standard().object(forKey: "reachableRegions") as? NSData {
+                return NSKeyedUnarchiver.unarchiveObject(with: data as Data) as! [String: Beakn]
             }
             
             return [:]
@@ -238,9 +238,9 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
                 return
             }
             
-            let data = NSKeyedArchiver.archivedDataWithRootObject(newValue)
-            let userDefaults = NSUserDefaults.standardUserDefaults()
-            userDefaults.setObject(data, forKey: "reachableRegions")
+            let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
+            let userDefaults = UserDefaults.standard()
+            userDefaults.set(data, forKey: "reachableRegions")
             userDefaults.synchronize()
         }
     }
@@ -253,7 +253,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
     private override init() {
         manager = CLLocationManager()
         
-        if CLLocationManager.authorizationStatus() != .AuthorizedAlways {
+        if CLLocationManager.authorizationStatus() != .authorizedAlways {
             manager.requestAlwaysAuthorization()
         }
         
@@ -272,7 +272,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
      */
     public func startMonitoringForBeakns(beakns: [Beakn]) throws {
         try beakns.forEach { (beakn) -> () in
-            try startMonitoringForBeakn(beakn)
+            try startMonitoringForBeakn(beakn: beakn)
         }
     }
     
@@ -291,12 +291,12 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
             throw BeaknErrorDomain.AuthorizationError(msg: "Location services not enabled")
         }
         
-        guard CLLocationManager.authorizationStatus() == .AuthorizedAlways else {
+        guard CLLocationManager.authorizationStatus() == .authorizedAlways else {
             switch CLLocationManager.authorizationStatus() {
-            case .Denied:
+            case .denied:
                 print("User denied location services")
                 throw BeaknErrorDomain.AuthorizationError(msg: "User denied location services")
-            case .Restricted:
+            case .restricted:
                 print("App is prevented from accessing Location Services")
                 throw BeaknErrorDomain.AuthorizationError(msg: "App is prevented from accessing Location Services")
             default:
@@ -305,24 +305,19 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
             }
         }
         
-        guard CLLocationManager.isMonitoringAvailableForClass(CLBeaconRegion) else {
-            print("Region monitoring not available on this device")
-            throw BeaknErrorDomain.RegionMonitoringError(msg: "Region monitoring not available on this device")
-        }
-        
-        guard let auuid = NSUUID(UUIDString: beakn.uuid) else {
+        guard let auuid = UUID(uuidString: beakn.uuid) else {
             throw BeaknErrorDomain.InvalidUUIDString
         }
         
         let region:CLBeaconRegion!
         
         switch (beakn.major, beakn.minor) {
-        case (.None, .None):
-            region = CLBeaconRegion(proximityUUID: auuid, identifier: beakn.identifier)
-        case (.Some(let major), .None):
-            region = CLBeaconRegion(proximityUUID: auuid, major: UInt16(major), identifier: beakn.identifier)
-        case (.Some(let major), .Some(let minor)):
-            region = CLBeaconRegion(proximityUUID: auuid, major: UInt16(major), minor: UInt16(minor), identifier: beakn.identifier)
+        case (.none, .none):
+            region = CLBeaconRegion(proximityUUID: auuid as UUID, identifier: beakn.identifier)
+        case (.some(let major), .none):
+            region = CLBeaconRegion(proximityUUID: auuid as UUID, major: UInt16(major), identifier: beakn.identifier)
+        case (.some(let major), .some(let minor)):
+            region = CLBeaconRegion(proximityUUID: auuid as UUID, major: UInt16(major), minor: UInt16(minor), identifier: beakn.identifier)
         default:
             print("Invalid Beakn Info provided")
             throw BeaknErrorDomain.InvalidBeaknInfo
@@ -333,7 +328,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         region.notifyOnExit = true
         
         repository[beakn.identifier] = beakn
-        manager.startMonitoringForRegion(region)
+        manager.startMonitoring(for: region)
     }
     
     /**
@@ -372,7 +367,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
         }
         
         beakns.forEach { (beakn) -> () in
-            stopMonitoringForBeakn(beakn)
+            stopMonitoringForBeakn(beakn: beakn)
         }
     }
     
@@ -386,7 +381,7 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
             return
         }
         
-        manager.stopMonitoringForRegion(region)
+        manager.stopMonitoring(for: region)
         monitoredRegions[beakn.identifier] = nil
         reachableRegions[beakn.identifier] = nil
     }
@@ -399,30 +394,30 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
             return
         }
         
-        stopMonitoringForBeakns(Array(monitoredRegions.values))
+        stopMonitoringForBeakns(beakns: Array(monitoredRegions.values))
     }
     
     /**
      Adding NSCoder methods to be able to persist data associated with this library
      */
     public required init?(coder aDecoder: NSCoder) {
-        self.manager = aDecoder.decodeObjectForKey("manager") as! CLLocationManager
+        self.manager = aDecoder.decodeObject(forKey: "manager") as! CLLocationManager
         super.init()
         
-        self.isMonitoring = aDecoder.decodeBoolForKey("isMonitoring")
-        self.repository = aDecoder.decodeObjectForKey("repository") as! [String: Beakn]
-        self.monitoredRegions = aDecoder.decodeObjectForKey("monitoredRegions") as! [String: Beakn]
-        self.reachableRegions = aDecoder.decodeObjectForKey("reachableRegions") as! [String: Beakn]
-        self.delegate = aDecoder.decodeObjectForKey("delegate") as? BeaknDelegate
+        self.isMonitoring = aDecoder.decodeBool(forKey: "isMonitoring")
+        self.repository = aDecoder.decodeObject(forKey: "repository") as! [String: Beakn]
+        self.monitoredRegions = aDecoder.decodeObject(forKey: "monitoredRegions") as! [String: Beakn]
+        self.reachableRegions = aDecoder.decodeObject(forKey: "reachableRegions") as! [String: Beakn]
+        self.delegate = aDecoder.decodeObject(forKey: "delegate") as? BeaknDelegate
     }
     
-    func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeBool(self.isMonitoring, forKey: "isMonitoring")
-        aCoder.encodeObject(self.repository, forKey: "repository")
-        aCoder.encodeObject(self.monitoredRegions, forKey: "monitoredRegions")
-        aCoder.encodeObject(self.delegate, forKey: "delegate")
-        aCoder.encodeObject(self.manager, forKey: "manager")
-        aCoder.encodeObject(self.reachableRegions, forKey: "reachableRegions")
+    func encode(aCoder: NSCoder) {
+        aCoder.encode(self.isMonitoring, forKey: "isMonitoring")
+        aCoder.encode(self.repository, forKey: "repository")
+        aCoder.encode(self.monitoredRegions, forKey: "monitoredRegions")
+        aCoder.encode(self.delegate, forKey: "delegate")
+        aCoder.encode(self.manager, forKey: "manager")
+        aCoder.encode(self.reachableRegions, forKey: "reachableRegions")
     }
     
     deinit {
@@ -435,12 +430,12 @@ func == (lhs: Beakn, rhs: Beakn) -> Bool {
 extension BeaknManager: CLLocationManagerDelegate {
     public func locationManager(manager: CLLocationManager,
         didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-            if status == .AuthorizedAlways {
+            if status == .authorizedAlways {
                 //do nothing
-            } else if status == .AuthorizedWhenInUse {
+            } else if status == .authorizedWhenInUse {
                 //alert user
                 print("User granted only when in use authorization")
-            } else if status == .Denied {
+            } else if status == .denied {
                 //alert user
                 print("User denied location access")
             }
@@ -453,7 +448,7 @@ extension BeaknManager: CLLocationManagerDelegate {
         }
         
         print("Unable to start location manager \(error)")
-        handler.initializationFailed(error)
+        handler.initializationFailed(error: error)
     }
   
     public func locationManager(manager: CLLocationManager, didStartMonitoringForRegion region: CLRegion) {
@@ -463,7 +458,7 @@ extension BeaknManager: CLLocationManagerDelegate {
         
         isMonitoring = true
         monitoredRegions[aregion.identifier] = beakn
-        manager.requestStateForRegion(aregion)
+        manager.requestState(for: aregion)
     }
     
     public func locationManager(manager: CLLocationManager, monitoringDidFailForRegion region: CLRegion?, withError error: NSError) {
@@ -472,7 +467,7 @@ extension BeaknManager: CLLocationManagerDelegate {
         }
         
         print("Monitoring failed for Beakn region \(beakn) due to error \(error)")
-        handler.monitoringFailedForRegion(beakn, error: error)
+        handler.monitoringFailedForRegion(beakn: beakn, error: error)
     }
     
     public func locationManager(manager: CLLocationManager, didEnterRegion region: CLRegion) {
@@ -496,7 +491,7 @@ extension BeaknManager: CLLocationManagerDelegate {
         }
         
         reachableRegions[region.identifier] = beakn
-        handler.entered(beakn)
+        handler.entered(beakn:beakn)
     }
     
     public func locationManager(manager: CLLocationManager, didExitRegion region: CLRegion) {
@@ -510,21 +505,21 @@ extension BeaknManager: CLLocationManagerDelegate {
             return
         }
         
-        reachableRegions[region.identifier] = .None
-        handler.exited(beakn)
+        reachableRegions[region.identifier] = .none
+        handler.exited(beakn: beakn)
     }
 }
 
 // MARK: - Extension for Double to allow comparisions between them
 extension Double {
-    func compare(aValue: Double) -> NSComparisonResult {
-        var result = NSComparisonResult.OrderedSame
+    func compare(aValue: Double) -> ComparisonResult {
+        var result = ComparisonResult.orderedSame
         if self > aValue {
-            result = NSComparisonResult.OrderedAscending
+            result = ComparisonResult.orderedAscending
         } else if self < aValue {
-            result = NSComparisonResult.OrderedDescending
+            result = ComparisonResult.orderedDescending
         } else if self == aValue {
-            result = NSComparisonResult.OrderedSame
+            result = ComparisonResult.orderedSame
         }
         
         return result
@@ -533,19 +528,19 @@ extension Double {
 
 // MARK: - Extension for CLBeacon to allow comparision
 extension CLBeacon {
-    func compareByDistanceWith(beakn: CLBeacon) -> NSComparisonResult {
-        var result = NSComparisonResult.OrderedSame
-        if beakn.proximity == .Unknown && self.proximity != .Unknown {
-            result = NSComparisonResult.OrderedAscending
+    func compareByDistanceWith(beakn: CLBeacon) -> ComparisonResult {
+        var result = ComparisonResult.orderedSame
+        if beakn.proximity == .unknown && self.proximity != .unknown {
+            result = ComparisonResult.orderedAscending
         } else if self.proximity.rawValue > beakn.proximity.rawValue {
-            result = NSComparisonResult.OrderedDescending
+            result = ComparisonResult.orderedDescending
         }else if self.proximity == beakn.proximity {
             if self.accuracy < 0 && beakn.accuracy > 0 {
-                result =  NSComparisonResult.OrderedDescending
+                result =  ComparisonResult.orderedDescending
             } else if self.accuracy > 0 && beakn.accuracy < 0 {
-                result = NSComparisonResult.OrderedAscending
+                result = ComparisonResult.orderedAscending
             }else {
-                result =  self.accuracy.compare(beakn.accuracy)
+                result =  self.accuracy.compare(aValue: beakn.accuracy)
             }
         }
         
@@ -553,13 +548,13 @@ extension CLBeacon {
     }
     
     func beakn() -> Beakn {
-        return Beakn(uuid: proximityUUID.UUIDString,identifier: "\(proximityUUID.UUIDString)", major: major.integerValue, minor: minor.integerValue)
+        return Beakn(uuid: proximityUUID.uuidString,identifier: "\(proximityUUID.uuidString)", major: major.intValue, minor: minor.intValue)
     }
 }
 
 // MARK: -  Extension for CLBeaconRegion
 extension CLBeaconRegion {
     func beaknInfo() -> Beakn {
-        return Beakn(uuid: proximityUUID.UUIDString, identifier: identifier, major: major?.integerValue, minor: minor?.integerValue)
+        return Beakn(uuid: proximityUUID.uuidString, identifier: identifier, major: major?.intValue, minor: minor?.intValue)
     }
 }
