@@ -32,5 +32,3 @@ DerivedData
 # Carthage/Checkouts
 
 Carthage/Build
-
-.travis.yml
